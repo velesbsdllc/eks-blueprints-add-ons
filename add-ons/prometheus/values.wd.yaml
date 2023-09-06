@@ -1,0 +1,22 @@
+extraScrapeConfigs:
+    - job_name: whitedoc_metrics
+      scrape_interval: 10s
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: default
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: k8s_pod_name
+      - source_labels: [__address__]
+        action: replace
+        regex: ([^:]+)(?::\d+)?
+        replacement: ${1}:4443
+        target_label: __address__
+      - target_label: __metrics_path__
+        replacement: /actuator/prometheus
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: whitedoc
